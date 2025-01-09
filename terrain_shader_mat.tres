@@ -1,0 +1,10 @@
+[gd_resource type="ShaderMaterial" load_steps=2 format=3 uid="uid://bgv0akgfewl8g"]
+
+[ext_resource type="Shader" path="res://terrain.gdshader" id="1_4tk0f"]
+
+[resource]
+render_priority = 0
+shader = ExtResource("1_4tk0f")
+shader_parameter/highlight_color = Color(1, 0, 0, 0.5)
+shader_parameter/highlight_radius = 1.0
+shader_parameter/highlight_center = null

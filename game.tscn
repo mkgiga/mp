@@ -1,0 +1,237 @@
+[gd_scene load_steps=14 format=3 uid="uid://bupggj64sr8go"]
+
+[ext_resource type="PackedScene" uid="uid://cxor8nvx87bgo" path="res://Scenes/ChunkedMap.tscn" id="1_6tmcx"]
+[ext_resource type="Script" path="res://Scripts/Game.gd" id="1_njsjl"]
+[ext_resource type="PackedScene" uid="uid://b31ioi3rwsjd0" path="res://Scenes/ClientEntity.tscn" id="3_xnrjj"]
+[ext_resource type="Script" path="res://Scenes/CinematicCamera3D.gd" id="4_npvo4"]
+[ext_resource type="PackedScene" uid="uid://blwlo14olcdxu" path="res://Scenes/GUI/LabeledHSlider.tscn" id="5_4fdyy"]
+[ext_resource type="Script" path="res://Scripts/PacketHandler.gd" id="6_q8rcw"]
+[ext_resource type="Script" path="res://Scripts/NetworkClient.gd" id="7_wogx3"]
+
+[sub_resource type="GDScript" id="GDScript_asxqd"]
+resource_name = "Entities"
+script/source = "extends Node3D
+
+## Test
+func get_entities() -> Array[Node3D]:
+	return get_children().filter(func(entity): return entity is ClientEntity or entity is ClientPlayerEntity)
+
+## TODO: handle incoming entity updates
+func update_entities():
+	pass
+"
+
+[sub_resource type="GDScript" id="GDScript_xytvo"]
+resource_name = "BtnSendMessage"
+script/source = "extends LineEdit
+
+
+# Called when the node enters the scene tree for the first time.
+func _ready() -> void:
+	pass # Replace with function body.
+
+# Called every frame. 'delta' is the elapsed time since the previous frame.
+func _process(delta: float) -> void:
+	pass
+
+func _on_text_submitted(new_text: String) -> void:
+	send_chat_message(self.text)
+	self.text = \"\"
+
+func send_chat_message(text: String):
+	Global.client.send(\"message\", {
+		\"type\": \"say\",
+		\"data\": {
+			\"text\": text,
+			\"channel\": \"world\"
+		}
+	})
+	
+"
+
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_s8mt0"]
+
+[sub_resource type="Sky" id="Sky_5fxla"]
+sky_material = SubResource("ProceduralSkyMaterial_s8mt0")
+
+[sub_resource type="Environment" id="Environment_aqhqw"]
+background_mode = 2
+sky = SubResource("Sky_5fxla")
+ambient_light_color = Color(0, 0.628778, 0.967455, 1)
+
+[sub_resource type="CameraAttributesPractical" id="CameraAttributesPractical_2a4mj"]
+
+[node name="Game" type="Node3D"]
+script = ExtResource("1_njsjl")
+
+[node name="World" type="Node3D" parent="."]
+
+[node name="ChunkedMap" parent="World" instance=ExtResource("1_6tmcx")]
+
+[node name="Entities" type="Node3D" parent="World"]
+script = SubResource("GDScript_asxqd")
+
+[node name="Player" parent="World/Entities" instance=ExtResource("3_xnrjj")]
+unique_name_in_owner = true
+is_player = true
+is_local_player = true
+
+[node name="CinematicCamera3D" type="Camera3D" parent="World/Entities/Player" node_paths=PackedStringArray("initial_target")]
+transform = Transform3D(0.580191, -0.575924, 0.575925, 0, 0.707107, 0.707107, -0.81448, -0.410257, 0.410257, 3.3711, 2.45216, 2.57239)
+current = true
+script = ExtResource("4_npvo4")
+initial_target = NodePath("..")
+
+[node name="UI" type="CanvasLayer" parent="."]
+
+[node name="Control" type="Control" parent="UI"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="UI/Control"]
+layout_mode = 1
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_top = -300.0
+offset_right = 300.0
+grow_vertical = 0
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_bottom = 16
+
+[node name="VBoxContainer" type="VBoxContainer" parent="UI/Control/MarginContainer"]
+layout_mode = 2
+
+[node name="Chat Header" type="MarginContainer" parent="UI/Control/MarginContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="UI/Control/MarginContainer/VBoxContainer/Chat Header"]
+layout_mode = 2
+text = "Chat"
+
+[node name="Chat Messages" type="ItemList" parent="UI/Control/MarginContainer/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="Chat Input Container" type="HBoxContainer" parent="UI/Control/MarginContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="TxtSendMessage" type="LineEdit" parent="UI/Control/MarginContainer/VBoxContainer/Chat Input Container"]
+custom_minimum_size = Vector2(0, 24)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 11
+placeholder_text = "Send a message..."
+script = SubResource("GDScript_xytvo")
+
+[node name="BtnSendMessage" type="Button" parent="UI/Control/MarginContainer/VBoxContainer/Chat Input Container"]
+custom_minimum_size = Vector2(48, 0)
+layout_mode = 2
+text = "Send"
+
+[node name="MapEditor" type="VBoxContainer" parent="UI/Control"]
+layout_mode = 1
+anchors_preset = 11
+anchor_left = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -258.0
+offset_top = 13.0
+offset_right = -14.0
+offset_bottom = -14.0
+grow_horizontal = 0
+grow_vertical = 2
+
+[node name="PanelContainer" type="PanelContainer" parent="UI/Control/MapEditor"]
+layout_mode = 2
+size_flags_vertical = 3
+size_flags_stretch_ratio = 0.3
+
+[node name="Objects Panel" type="Panel" parent="UI/Control/MapEditor/PanelContainer"]
+layout_mode = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="UI/Control/MapEditor/PanelContainer/Objects Panel"]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="Label" type="Label" parent="UI/Control/MapEditor/PanelContainer/Objects Panel/VBoxContainer"]
+layout_mode = 2
+text = "Objects"
+
+[node name="GridContainer" type="GridContainer" parent="UI/Control/MapEditor/PanelContainer/Objects Panel/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="PanelContainer2" type="PanelContainer" parent="UI/Control/MapEditor"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="Brush Options Panel" type="Panel" parent="UI/Control/MapEditor/PanelContainer2"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="Map Editor Brushes" type="HFlowContainer" parent="UI/Control/MapEditor/PanelContainer2/Brush Options Panel"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/h_separation = 8
+theme_override_constants/v_separation = 8
+
+[node name="Map Brush Size" parent="UI/Control/MapEditor/PanelContainer2/Brush Options Panel/Map Editor Brushes" instance=ExtResource("5_4fdyy")]
+unique_name_in_owner = true
+layout_mode = 2
+_text = "Brush Size"
+_value = 1.0
+max_value = 16.0
+
+[node name="HSeparator" type="VSeparator" parent="UI/Control/MapEditor/PanelContainer2/Brush Options Panel/Map Editor Brushes"]
+layout_mode = 2
+
+[node name="Map Brush Opacity" parent="UI/Control/MapEditor/PanelContainer2/Brush Options Panel/Map Editor Brushes" instance=ExtResource("5_4fdyy")]
+unique_name_in_owner = true
+layout_mode = 2
+_text = "Brush Opacity"
+_value = 1.0
+
+[node name="HSeparator2" type="VSeparator" parent="UI/Control/MapEditor/PanelContainer2/Brush Options Panel/Map Editor Brushes"]
+layout_mode = 2
+
+[node name="Map Brush Spread" parent="UI/Control/MapEditor/PanelContainer2/Brush Options Panel/Map Editor Brushes" instance=ExtResource("5_4fdyy")]
+unique_name_in_owner = true
+layout_mode = 2
+_text = "Brush Spread"
+_value = 1.0
+
+[node name="HSeparator3" type="VSeparator" parent="UI/Control/MapEditor/PanelContainer2/Brush Options Panel/Map Editor Brushes"]
+layout_mode = 2
+
+[node name="Map Brush Feather" parent="UI/Control/MapEditor/PanelContainer2/Brush Options Panel/Map Editor Brushes" instance=ExtResource("5_4fdyy")]
+unique_name_in_owner = true
+layout_mode = 2
+_text = "Brush Feather"
+
+[node name="HSeparator4" type="VSeparator" parent="UI/Control/MapEditor/PanelContainer2/Brush Options Panel/Map Editor Brushes"]
+layout_mode = 2
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_aqhqw")
+camera_attributes = SubResource("CameraAttributesPractical_2a4mj")
+
+[node name="PacketHandler" type="Node" parent="."]
+unique_name_in_owner = true
+script = ExtResource("6_q8rcw")
+
+[node name="NetworkClient" type="Node" parent="."]
+unique_name_in_owner = true
+script = ExtResource("7_wogx3")
+
+[connection signal="text_submitted" from="UI/Control/MarginContainer/VBoxContainer/Chat Input Container/TxtSendMessage" to="UI/Control/MarginContainer/VBoxContainer/Chat Input Container/TxtSendMessage" method="_on_text_submitted"]

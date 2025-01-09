@@ -1,0 +1,12 @@
+[gd_scene load_steps=3 format=3 uid="uid://dqhdptkxgdcpl"]
+
+[ext_resource type="Script" path="res://Scripts/Network.gd" id="1_hkayf"]
+[ext_resource type="Script" path="res://addons/godot-socketio/socketio.gd" id="1_rmc02"]
+
+[node name="Game" type="Node3D"]
+script = ExtResource("1_hkayf")
+
+[node name="SocketIO" type="Node" parent="."]
+script = ExtResource("1_rmc02")
+socket_path = "/game"
+base_url = "http://localhost:3000"

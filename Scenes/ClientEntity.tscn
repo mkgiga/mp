@@ -1,0 +1,19 @@
+[gd_scene load_steps=5 format=3 uid="uid://b31ioi3rwsjd0"]
+
+[ext_resource type="Script" path="res://Scenes/ClientEntity.gd" id="1_p2gd8"]
+[ext_resource type="PackedScene" uid="uid://cjw2ohjogd1ug" path="res://human_base.tscn" id="2_p43yj"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_o3mys"]
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_layvk"]
+
+[node name="ClientEntity" type="CharacterBody3D"]
+script = ExtResource("1_p2gd8")
+entity_model = ExtResource("2_p43yj")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+shape = SubResource("CapsuleShape3D_o3mys")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="CollisionShape3D"]
+mesh = SubResource("CapsuleMesh_layvk")
+skeleton = NodePath("../..")

@@ -1,0 +1,9 @@
+[gd_scene load_steps=3 format=3 uid="uid://ctr0p2o7asxa"]
+
+[ext_resource type="Script" path="res://Scenes/ClientPlayerEntity.gd" id="1_avtpp"]
+[ext_resource type="PackedScene" uid="uid://b31ioi3rwsjd0" path="res://Scenes/ClientEntity.tscn" id="2_gx7ip"]
+
+[node name="ClientPlayerEntity" type="Node3D"]
+script = ExtResource("1_avtpp")
+
+[node name="ClientEntity" parent="." instance=ExtResource("2_gx7ip")]

@@ -1,0 +1,12 @@
+[gd_scene load_steps=3 format=3 uid="uid://cxor8nvx87bgo"]
+
+[ext_resource type="Script" path="res://Scenes/ChunkedMap.gd" id="1_wwdlj"]
+[ext_resource type="Script" path="res://Scenes/TerrainEditorManager.gd" id="2_0ynnx"]
+
+[node name="ChunkedMap" type="Node3D"]
+script = ExtResource("1_wwdlj")
+
+[node name="Chunks" type="Node3D" parent="."]
+
+[node name="TerrainEditorManager" type="Node" parent="."]
+script = ExtResource("2_0ynnx")
